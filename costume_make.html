@@ -1,0 +1,88 @@
+<!-- costume_make.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>衣装、メイク関連のライフハック集</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div id="app">
+    <header class="bg-white shadow sticky top-0 z-50">
+      <nav class="flex flex-wrap justify-center md:justify-between items-center px-4 py-3 max-w-5xl mx-auto">
+        <h1 class="text-2xl font-bold text-blue-700">衣装、メイク関連のライフハック集</h1>
+        <div class="flex gap-3 mt-2 md:mt-0">
+          <a href="index.html" class="text-gray-600 hover:text-blue-600">トップ</a>
+          <a href="costume_make.html" class="text-blue-600 font-semibold">衣装・メイク</a>
+          <a href="food.html" class="text-gray-600 hover:text-blue-600">食事</a>
+          <a href="health.html" class="text-gray-600 hover:text-blue-600">体調管理</a>
+          <a href="other.html" class="text-gray-600 hover:text-blue-600">その他</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="max-w-5xl mx-auto p-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div v-for="item in items" :key="item.id"
+             class="bg-white rounded-lg shadow hover:shadow-lg p-4 cursor-pointer transition"
+             @click="openPopup(item)">
+          <h2 class="text-lg font-semibold text-gray-800 mb-1">{{ item.title }}</h2>
+          <p class="text-sm text-gray-600 mb-2">作成者：{{ item.author }}</p>
+          <div class="flex flex-wrap gap-1">
+            <span v-for="tag in item.tags" :key="tag"
+                  class="text-xs px-2 py-1 rounded-full text-white"
+                  :class="tagColors[tag] || 'bg-gray-400'">
+              {{ tag }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div v-if="popupItem" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div class="bg-white w-11/12 max-w-md p-6 rounded-lg relative">
+        <button class="absolute top-2 right-3 text-gray-600 text-2xl" @click="popupItem = null">×</button>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">{{ popupItem.title }}</h2>
+        <p class="text-sm text-gray-700 mb-4">{{ popupItem.description }}</p>
+        <p class="text-xs text-gray-600 mb-2">作成者：{{ popupItem.author }}</p>
+        <a v-if="popupItem.link" :href="popupItem.link" target="_blank"
+           class="text-blue-600 text-sm underline">関連リンク</a>
+        <div class="mt-4">
+          <span v-for="tag in popupItem.tags" :key="tag"
+                class="inline-block text-xs bg-blue-500 text-white px-2 py-1 rounded-full mr-1">
+            {{ tag }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        popupItem: null,
+        items: [],
+        tagColors: {
+          '演舞中': 'bg-purple-600',
+          '鳴子': 'bg-pink-600',
+          '足袋': 'bg-green-600',
+          '雨対策': 'bg-blue-600',
+          'メイク': 'bg-red-500'
+        }
+      },
+      methods: {
+        openPopup(item) { this.popupItem = item }
+      },
+      created() {
+        fetch('public/costume_make.json')  // 注意: Cloudflare Pages のビルド後は `/public/` の中身はルート相対で見える
+          .then(res => res.json())
+          .then(json => { this.items = json })
+          .catch(err => console.error('JSON取得エラー', err))
+      }
+    });
+  </script>
+</body>
+</html>
