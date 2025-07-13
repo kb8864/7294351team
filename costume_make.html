@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>衣装、メイク関連の
-    ライフハック集</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>👘衣装・メイクのライフハック集💄</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
   <div id="app">
-    <!-- ヘッダー -->
     <header class="bg-white shadow sticky top-0 z-50">
       <nav class="flex flex-wrap justify-center md:justify-between items-center px-4 py-3 max-w-5xl mx-auto">
-        <h1 class="text-2xl font-bold text-blue-700">衣装・メイクライフハック集</h1>
+        <h1 class="text-2xl font-bold text-blue-700">衣装、メイク関連のライフハック集</h1>
         <div class="flex gap-3 mt-2 md:mt-0">
-          <a href="index.html" class="text-gray-600 hover:text-blue-600">トップ</a>
           <a href="costume_make.html" class="text-blue-600 font-semibold">衣装・メイク</a>
           <a href="food.html" class="text-gray-600 hover:text-blue-600">食事</a>
           <a href="health.html" class="text-gray-600 hover:text-blue-600">体調管理</a>
@@ -24,35 +21,34 @@
       </nav>
     </header>
 
-    <!-- フィルターボタン -->
-    <section class="max-w-5xl mx-auto px-4 py-4">
-      <h2 class="text-lg font-semibold mb-2">タグで絞り込み:</h2>
-      <div class="flex flex-wrap gap-2">
-        <button
-          class="text-sm px-3 py-1 rounded-full border border-gray-300"
-          :class="filterTag === null ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'"
-          @click="filterTag = null"
-        >すべて</button>
-        <button
-          v-for="(color, tag) in tagColors" :key="tag"
-          class="text-sm px-3 py-1 rounded-full"
-          :class="[
-            filterTag === tag ? 'text-white' : 'text-white/80',
-            color
-          ]"
-          @click="filterTag = tag"
-        >{{ tag }}</button>
-      </div>
-    </section>
+    <main class="max-w-5xl mx-auto p-4">
+      <div class="mb-4 flex flex-wrap items-center gap-3">
+        <input v-model="searchKeyword" placeholder="キーワード検索（本文）"
+               class="px-3 py-2 border rounded-md w-full sm:w-auto flex-grow" />
 
-    <!-- カード一覧 -->
-    <main class="max-w-5xl mx-auto px-4 pb-10">
+        <div class="flex flex-wrap gap-2">
+          <button v-for="tag in uniqueTags" :key="tag"
+                  @click="filterTag = (filterTag === tag ? '' : tag)"
+                  class="px-3 py-1 rounded-full text-white text-sm"
+                  :class="[
+                    tagColors[tag] || 'bg-gray-400',
+                    filterTag === tag ? 'ring-4 ring-white ring-offset-2' : ''
+                  ]">
+            {{ tag }}
+          </button>
+          <button v-if="filterTag" @click="filterTag = ''"
+                  class="text-sm text-gray-600 underline ml-2">タグ解除</button>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <div v-for="item in filteredItems" :key="item.id"
              class="bg-white rounded-lg shadow hover:shadow-lg p-4 cursor-pointer transition"
              @click="openPopup(item)">
-          <h2 class="text-lg font-semibold text-gray-800 mb-1">{{ item.title }}</h2>
-          <p class="text-sm text-gray-600 mb-2">作成者：{{ item.author }}</p>
+          <h2 class="text-lg font-semibold text-gray-800 mb-1">
+            {{ item.title || truncate(item.description) }}
+          </h2>
+          <p class="text-sm text-gray-600 mb-2" v-if="item.author">作成者：{{ item.author }}</p>
           <div class="flex flex-wrap gap-1">
             <span v-for="tag in item.tags" :key="tag"
                   class="text-xs px-2 py-1 rounded-full text-white"
@@ -64,18 +60,19 @@
       </div>
     </main>
 
-    <!-- ポップアップ -->
     <div v-if="popupItem" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div class="bg-white w-11/12 max-w-md p-6 rounded-lg relative">
         <button class="absolute top-2 right-3 text-gray-600 text-2xl" @click="popupItem = null">×</button>
-        <h2 class="text-xl font-bold text-gray-800 mb-2">{{ popupItem.title }}</h2>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">
+          {{ popupItem.title || truncate(popupItem.description) }}
+        </h2>
         <p class="text-sm text-gray-700 mb-4">{{ popupItem.description }}</p>
-        <p class="text-xs text-gray-600 mb-2">作成者：{{ popupItem.author }}</p>
+        <p class="text-xs text-gray-600 mb-2" v-if="popupItem.author">作成者：{{ popupItem.author }}</p>
         <a v-if="popupItem.link" :href="popupItem.link" target="_blank"
-           class="text-blue-600 text-sm underline">リンク</a>
+           class="text-blue-600 text-sm underline">関連リンク</a>
         <div class="mt-4">
           <span v-for="tag in popupItem.tags" :key="tag"
-                class="inline-block text-xs px-2 py-1 rounded-full text-white mr-1"
+                class="inline-block text-xs text-white px-2 py-1 rounded-full mr-1"
                 :class="tagColors[tag] || 'bg-gray-400'">
             {{ tag }}
           </span>
@@ -84,14 +81,14 @@
     </div>
   </div>
 
-  <!-- Vue Script -->
   <script>
     new Vue({
       el: '#app',
       data: {
         popupItem: null,
         items: [],
-        filterTag: null,
+        filterTag: '',
+        searchKeyword: '',
         tagColors: {
           '演舞中': 'bg-purple-600',
           '鳴子': 'bg-pink-600',
@@ -101,18 +98,28 @@
         }
       },
       computed: {
+        uniqueTags() {
+          return [...new Set(this.items.flatMap(item => item.tags))];
+        },
         filteredItems() {
-          if (!this.filterTag) return this.items;
-          return this.items.filter(item => item.tags.includes(this.filterTag));
+          return this.items.filter(item => {
+            const matchesTag = !this.filterTag || item.tags.includes(this.filterTag);
+            const matchesKeyword = !this.searchKeyword ||
+              item.description.toLowerCase().includes(this.searchKeyword.toLowerCase());
+            return matchesTag && matchesKeyword;
+          });
         }
       },
       methods: {
         openPopup(item) {
           this.popupItem = item;
+        },
+        truncate(text) {
+          return text.length > 40 ? text.slice(0, 40) + '…' : text;
         }
       },
       created() {
-        fetch('public/costume_make.json')
+        fetch('./public/costume_make.json')
           .then(res => res.json())
           .then(json => { this.items = json })
           .catch(err => console.error('JSON取得エラー', err));
