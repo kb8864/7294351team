@@ -1,9 +1,8 @@
-<!-- costume_make.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial‑scale=1">
   <title>衣装、メイク関連のライフハック集</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -41,17 +40,18 @@
       </div>
     </main>
 
-    <div v-if="popupItem" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div class="bg-white w-11/12 max-w-md p-6 rounded-lg relative">
+    <div v-if="popupItem" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+      <div class="bg-white w-full max-w-md p-6 rounded-lg relative">
         <button class="absolute top-2 right-3 text-gray-600 text-2xl" @click="popupItem = null">×</button>
         <h2 class="text-xl font-bold text-gray-800 mb-2">{{ popupItem.title }}</h2>
         <p class="text-sm text-gray-700 mb-4">{{ popupItem.description }}</p>
         <p class="text-xs text-gray-600 mb-2">作成者：{{ popupItem.author }}</p>
         <a v-if="popupItem.link" :href="popupItem.link" target="_blank"
-           class="text-blue-600 text-sm underline">関連リンク</a>
-        <div class="mt-4">
+           class="text-blue-600 text-sm underline">リンク</a>
+        <div class="mt-4 flex flex-wrap gap-2">
           <span v-for="tag in popupItem.tags" :key="tag"
-                class="inline-block text-xs bg-blue-500 text-white px-2 py-1 rounded-full mr-1">
+                class="inline-block text-xs text-white px-2 py-1 rounded-full"
+                :class="tagColors[tag] || 'bg-gray-400'">
             {{ tag }}
           </span>
         </div>
@@ -77,7 +77,7 @@
         openPopup(item) { this.popupItem = item }
       },
       created() {
-        fetch('public/costume_make.json')  // 注意: Cloudflare Pages のビルド後は `/public/` の中身はルート相対で見える
+        fetch('costume_make.json')
           .then(res => res.json())
           .then(json => { this.items = json })
           .catch(err => console.error('JSON取得エラー', err))
