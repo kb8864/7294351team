@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>衣装、メイク関連のライフハック集</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
   <div id="app">
+    <!-- ヘッダー -->
     <header class="bg-white shadow sticky top-0 z-50">
       <nav class="flex flex-wrap justify-center md:justify-between items-center px-4 py-3 max-w-5xl mx-auto">
         <h1 class="text-2xl font-bold text-blue-700">衣装、メイク関連のライフハック集</h1>
@@ -22,9 +23,31 @@
       </nav>
     </header>
 
-    <main class="max-w-5xl mx-auto p-4">
+    <!-- フィルターボタン -->
+    <section class="max-w-5xl mx-auto px-4 py-4">
+      <h2 class="text-lg font-semibold mb-2">タグで絞り込み:</h2>
+      <div class="flex flex-wrap gap-2">
+        <button
+          class="text-sm px-3 py-1 rounded-full border border-gray-300"
+          :class="filterTag === null ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'"
+          @click="filterTag = null"
+        >すべて</button>
+        <button
+          v-for="(color, tag) in tagColors" :key="tag"
+          class="text-sm px-3 py-1 rounded-full"
+          :class="[
+            filterTag === tag ? 'text-white' : 'text-white/80',
+            color
+          ]"
+          @click="filterTag = tag"
+        >{{ tag }}</button>
+      </div>
+    </section>
+
+    <!-- カード一覧 -->
+    <main class="max-w-5xl mx-auto px-4 pb-10">
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        <div v-for="item in items" :key="item.id"
+        <div v-for="item in filteredItems" :key="item.id"
              class="bg-white rounded-lg shadow hover:shadow-lg p-4 cursor-pointer transition"
              @click="openPopup(item)">
           <h2 class="text-lg font-semibold text-gray-800 mb-1">{{ item.title }}</h2>
@@ -40,17 +63,18 @@
       </div>
     </main>
 
-    <div v-if="popupItem" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-      <div class="bg-white w-full max-w-md p-6 rounded-lg relative">
+    <!-- ポップアップ -->
+    <div v-if="popupItem" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div class="bg-white w-11/12 max-w-md p-6 rounded-lg relative">
         <button class="absolute top-2 right-3 text-gray-600 text-2xl" @click="popupItem = null">×</button>
         <h2 class="text-xl font-bold text-gray-800 mb-2">{{ popupItem.title }}</h2>
         <p class="text-sm text-gray-700 mb-4">{{ popupItem.description }}</p>
         <p class="text-xs text-gray-600 mb-2">作成者：{{ popupItem.author }}</p>
         <a v-if="popupItem.link" :href="popupItem.link" target="_blank"
-           class="text-blue-600 text-sm underline">関連リンク</a>
-        <div class="mt-4 flex flex-wrap gap-2">
+           class="text-blue-600 text-sm underline">リンク</a>
+        <div class="mt-4">
           <span v-for="tag in popupItem.tags" :key="tag"
-                class="inline-block text-xs text-white px-2 py-1 rounded-full"
+                class="inline-block text-xs px-2 py-1 rounded-full text-white mr-1"
                 :class="tagColors[tag] || 'bg-gray-400'">
             {{ tag }}
           </span>
@@ -59,18 +83,26 @@
     </div>
   </div>
 
+  <!-- Vue Script -->
   <script>
     new Vue({
       el: '#app',
       data: {
         popupItem: null,
         items: [],
+        filterTag: null,
         tagColors: {
           '演舞中': 'bg-purple-600',
           '鳴子': 'bg-pink-600',
           '足袋': 'bg-green-600',
           '雨対策': 'bg-blue-600',
           'メイク': 'bg-red-500'
+        }
+      },
+      computed: {
+        filteredItems() {
+          if (!this.filterTag) return this.items;
+          return this.items.filter(item => item.tags.includes(this.filterTag));
         }
       },
       methods: {
@@ -81,9 +113,7 @@
       created() {
         fetch('public/costume_make.json')
           .then(res => res.json())
-          .then(json => {
-            this.items = json;
-          })
+          .then(json => { this.items = json })
           .catch(err => console.error('JSON取得エラー', err));
       }
     });
