@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>\ud83d\udcd5\u305d\u306e\u4ed6\u306e\u304a\u5f79\u7acb\u3061\u60c5\u5831\uff08\u4fee\u6b63\u5b8c\u6210\u7248\uff09</title>
+  <title>📕その他のお役立ち情報</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -45,11 +45,46 @@
 </head>
 <body>
 <div id="app">
+  <header class="bg-white shadow sticky top-0 z-50">
+    <nav class="flex flex-wrap justify-center md:justify-between items-center px-4 py-3 max-w-5xl mx-auto">
+      <h1 class="text-2xl font-bold text-blue-700">📕その他のお役立ち情報</h1>
+      <div class="flex gap-3 mt-2 md:mt-0">
+        <a href="index.html" class="text-gray-600 hover:text-green-600">トップ</a>
+        <a href="costume_make.html" class="text-gray-600 hover:text-blue-600">衣装・メイク</a>
+        <a href="food.html" class="text-gray-600 hover:text-orange-600">食事</a>
+        <a href="health.html" class="text-gray-600 hover:text-green-600">体調管理</a>
+        <a href="other.html" class="text-blue-600 font-semibold">その他</a>
+      </div>
+    </nav>
+  </header>
+
   <main class="max-w-5xl mx-auto p-4">
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+      <div class="relative w-full sm:w-auto flex-grow">
+        <input v-model="searchKeyword" placeholder="キーワード検索（本文）"
+               class="px-3 py-2 border rounded-md w-full pr-8" />
+        <button v-if="searchKeyword" @click="searchKeyword = ''"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-700 text-lg">&times;</button>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button v-for="tag in uniqueTags" :key="tag"
+                @click="filterTag = (filterTag === tag ? '' : tag)"
+                class="px-3 py-1 rounded-full text-white text-sm"
+                :class="[
+                  tagColors[tag] || 'bg-gray-400',
+                  filterTag === tag ? 'ring-4 ring-white ring-offset-2' : ''
+                ]">
+          {{ tag }}
+        </button>
+        <button v-if="filterTag" @click="filterTag = ''"
+                class="text-sm text-gray-600 underline ml-2">タグ解除</button>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       <div v-for="item in filteredItems" :key="item.id"
            class="bg-white rounded-lg shadow hover:shadow-lg p-4 cursor-pointer transition"
-           @click="openPopup(item, $event)">
+           @click="openPopup(item)">
         <h2 class="text-lg font-semibold text-gray-800 mb-1">
           {{ item.title || truncate(item.description) }}
         </h2>
@@ -121,7 +156,7 @@
       }
     },
     methods: {
-      openPopup(item, event) {
+      openPopup(item) {
         this.popupItem = item;
         this.scrollY = window.scrollY;
         document.body.style.position = 'fixed';
