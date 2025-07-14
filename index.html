@@ -6,6 +6,20 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>ライフハックカテゴリ一覧</title>
   <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+    body {
+      background-image: url('obanfurumai.JPG');
+      background-size: cover;
+      background-position: left center; /* 左寄りに設定 */
+      background-repeat: no-repeat;
+    }
+
+    #app {
+      background-color: rgba(255, 255, 255, 0.85); /* コンテンツエリアの背景を白＋少し透明 */
+      min-height: 100vh;
+    }
+  </style>
+
 </head>
 <body class="bg-fixed bg-center bg-cover" style="background-image: url('./public/images/obanfurumai.JPG');">
   <div class="min-h-screen bg-white bg-opacity-80 backdrop-blur-md">
@@ -18,7 +32,7 @@
   <main class="max-w-4xl mx-auto p-4 grid gap-6 sm:grid-cols-2 md:grid-cols-2">
     <a href="costume_make.html" class="block bg-white rounded-lg shadow hover:shadow-lg p-6 transition">
       <h2 class="text-xl font-bold text-gray-800 mb-2">衣装・メイク</h2>
-      <p class="text-sm text-gray-600">👘衣装、メイク関連のライフハック集💄</p>
+      <p class="text-sm text-gray-600">👘衣装・メイクのライフハック集💄</p>
     </a>
     <a href="food.html" class="block bg-white rounded-lg shadow hover:shadow-lg p-6 transition">
       <h2 class="text-xl font-bold text-gray-800 mb-2">食事</h2>
