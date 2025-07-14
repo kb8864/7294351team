@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>📕その他のお役立ち情報（改善版）</title>
+  <title>\ud83d\udcd5\u305d\u306e\u4ed6\u306e\u304a\u5f79\u7acb\u3061\u60c5\u5831\uff08\u4fee\u6b63\u5b8c\u6210\u7248\uff09</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -45,28 +45,45 @@
 </head>
 <body>
 <div id="app">
-  <!-- 省略：ヘッダーとメインの内容はそのまま -->
-
-  <!-- 修正済みポップアップ領域 -->
-  <div v-if="popupItem" class="popup-overlay" @click.self="closePopup">
-    <div class="popup-content">
-      <button class="absolute top-2 right-3 text-gray-600 text-2xl" @click="closePopup">×</button>
-      <h2 class="text-xl font-bold text-gray-800 mb-2">
-        {{ popupItem.title || truncate(popupItem.description) }}
-      </h2>
-      <p class="text-sm text-gray-700 mb-4">{{ popupItem.description }}</p>
-      <p class="text-xs text-gray-600 mb-2" v-if="popupItem.author">情報提供者：{{ popupItem.author }}</p>
-      <a v-if="popupItem.link" :href="popupItem.link" target="_blank"
-         class="text-blue-600 text-sm underline">関連リンク</a>
-      <div class="mt-4">
-        <span v-for="tag in popupItem.tags" :key="tag"
-              class="inline-block text-xs text-white px-2 py-1 rounded-full mr-1"
-              :class="tagColors[tag] || 'bg-gray-400'">
-          {{ tag }}
-        </span>
+  <main class="max-w-5xl mx-auto p-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div v-for="item in filteredItems" :key="item.id"
+           class="bg-white rounded-lg shadow hover:shadow-lg p-4 cursor-pointer transition"
+           @click="openPopup(item, $event)">
+        <h2 class="text-lg font-semibold text-gray-800 mb-1">
+          {{ item.title || truncate(item.description) }}
+        </h2>
+        <p class="text-sm text-gray-600 mb-2" v-if="item.author">情報提供者：{{ item.author }}</p>
+        <div class="flex flex-wrap gap-1">
+          <span v-for="tag in item.tags" :key="tag"
+                class="text-xs px-2 py-1 rounded-full text-white"
+                :class="tagColors[tag] || 'bg-gray-400'">
+            {{ tag }}
+          </span>
+        </div>
       </div>
     </div>
-  </div>
+
+    <div v-if="popupItem" class="popup-overlay" @click.self="closePopup">
+      <div class="popup-content">
+        <button class="absolute top-2 right-3 text-gray-600 text-2xl" @click="closePopup">×</button>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">
+          {{ popupItem.title || truncate(popupItem.description) }}
+        </h2>
+        <p class="text-sm text-gray-700 mb-4">{{ popupItem.description }}</p>
+        <p class="text-xs text-gray-600 mb-2" v-if="popupItem.author">情報提供者：{{ popupItem.author }}</p>
+        <a v-if="popupItem.link" :href="popupItem.link" target="_blank"
+           class="text-blue-600 text-sm underline">関連リンク</a>
+        <div class="mt-4">
+          <span v-for="tag in popupItem.tags" :key="tag"
+                class="inline-block text-xs text-white px-2 py-1 rounded-full mr-1"
+                :class="tagColors[tag] || 'bg-gray-400'">
+            {{ tag }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </main>
 </div>
 
 <script>
@@ -77,6 +94,7 @@
       items: [],
       filterTag: '',
       searchKeyword: '',
+      scrollY: 0,
       tagColors: {
         'おすすめグッズ': 'bg-red-500',
         'BBQ': 'bg-green-600',
@@ -102,13 +120,21 @@
       }
     },
     methods: {
-      openPopup(item) {
+      openPopup(item, event) {
         this.popupItem = item;
-        document.body.style.overflow = 'hidden'; // 背景スクロール防止
+        this.scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${this.scrollY}px`;
+        document.body.style.overflow = 'hidden';
+        document.body.style.width = '100%';
       },
       closePopup() {
         this.popupItem = null;
-        document.body.style.overflow = ''; // スクロール復活
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.overflow = '';
+        document.body.style.width = '';
+        window.scrollTo(0, this.scrollY);
       },
       truncate(text) {
         return text.length > 40 ? text.slice(0, 40) + '…' : text;
