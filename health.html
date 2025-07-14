@@ -84,7 +84,7 @@
           {{ popupItem.title || truncate(popupItem.description) }}
         </h2>
         <p class="text-sm text-gray-700 mb-4">{{ popupItem.description }}</p>
-        <p class="text-xs text-gray-600 mb-2" v-if="popupItem.author">作成者：{{ popupItem.author }}</p>
+        <p class="text-xs text-gray-600 mb-2" v-if="popupItem.author">情報提供者：{{ popupItem.author }}</p>
         <div class="mt-4">
           <span v-for="tag in popupItem.tags" :key="tag"
                 class="inline-block text-xs text-white px-2 py-1 rounded-full mr-1"

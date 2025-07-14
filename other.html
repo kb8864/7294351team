@@ -81,7 +81,7 @@
         {{ popupItem.title || truncate(popupItem.description) }}
       </h2>
       <p class="text-sm text-gray-700 mb-4">{{ popupItem.description }}</p>
-      <p class="text-xs text-gray-600 mb-2" v-if="popupItem.author">作成者：{{ popupItem.author }}</p>
+      <p class="text-xs text-gray-600 mb-2" v-if="popupItem.author">情報提供者：{{ popupItem.author }}</p>
       <a v-if="popupItem.link" :href="popupItem.link" target="_blank"
          class="text-blue-600 text-sm underline">関連リンク</a>
       <div class="mt-4">
