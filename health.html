@@ -65,7 +65,7 @@
           <h2 class="text-lg font-semibold text-gray-800 mb-1">
             {{ item.title || truncate(item.description) }}
           </h2>
-          <p class="text-sm text-gray-600 mb-2" v-if="item.author">作成者：{{ item.author }}</p>
+          <p class="text-sm text-gray-600 mb-2" v-if="item.author">情報提供者：{{ item.author }}</p>
           <div class="flex flex-wrap gap-1">
             <span v-for="tag in item.tags" :key="tag"
                   class="text-xs px-2 py-1 rounded-full text-white"
