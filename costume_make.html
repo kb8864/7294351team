@@ -44,6 +44,9 @@
   </style>
 </head>
 <body>
+  <!-- TailwindのJITによるクラス削除を防ぐためのダミー -->
+<span class="bg-purple-600 bg-pink-600 bg-green-600 bg-blue-600 bg-red-500 hidden"></span>
+
 <div id="app">
   <header class="bg-white shadow sticky top-0 z-50">
     <nav class="flex flex-wrap justify-center md:justify-between items-center px-4 py-3 max-w-5xl mx-auto">
@@ -106,7 +109,7 @@
           {{ popupItem.title || truncate(popupItem.description) }}
         </h2>
         <p class="text-sm text-gray-700 mb-4 whitespace-pre-wrap">
-          {{ popupItem.description }}
+          {{ popupItem.description.trim()  }}
         </p>
         <p class="text-xs text-gray-600 mb-2" v-if="popupItem.author">情報提供者：{{ popupItem.author }}</p>
         <a v-if="popupItem.link" :href="popupItem.link" target="_blank"
