@@ -112,6 +112,11 @@
         <p class="text-xs text-gray-600 mb-2" v-if="popupItem.author">情報提供者：{{ popupItem.author }}</p>
         <a v-if="popupItem.link" :href="popupItem.link" target="_blank"
            class="text-blue-600 text-sm underline">関連リンク</a>
+        <!-- 📷 写真セクションの追加 -->
+        <div v-if="popupItem.photo" class="mt-4">
+          <p class="text-sm text-gray-700 font-semibold mb-2">写真</p>
+          <img :src="popupItem.photo" alt="関連写真" class="w-full max-w-md rounded shadow">
+        </div>
         <div class="mt-4">
           <span v-for="tag in popupItem.tags" :key="tag"
                 class="inline-block text-xs text-white px-2 py-1 rounded-full mr-1"
@@ -138,7 +143,8 @@
         '鳴子': 'bg-pink-600',
         '足袋': 'bg-green-600',
         '雨対策': 'bg-blue-600',
-        'メイク': 'bg-red-500'
+        'メイク': 'bg-red-500',
+        '髪型':'bg-orange-400'
       }
     },
     computed: {
