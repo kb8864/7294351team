@@ -2,7 +2,7 @@
 const CALENDAR_ID = 'rensyubu7294351@gmail.com';
 
 function doGet(e) {
-  // パラメータに type (normal か festival) を追加
+  // パラメータ type を受け取る
   if (e.parameter.month) {
     return createIcsFile(parseInt(e.parameter.month), e.parameter.type);
   }
@@ -36,7 +36,6 @@ function getCalendarEvents() {
     
     let timeStr = isAllDay ? '終日' : `${startFmt}-${endFmt}`; 
     
-    // 更新マーク判定
     let title = event.summary || "予定";
     if (event.updated && event.created) {
       const updatedDate = new Date(event.updated);
@@ -73,13 +72,12 @@ function createIcsFile(targetMonth, type) {
   let events = [];
   let fileName = "";
 
-  // ★分岐：祭りモードなら「2月〜12月」を全取得、通常なら「指定月」のみ
-  if (type === 'festival') {
-    // 【祭りモード】
-    // 1. ミカン色(6)のみ抽出
-    // 2. 2月〜12月の範囲のみ抽出
+  // ★3つのパターンで分岐
+  if (type === 'practice') {
+    // 【緑：練習日登録】
+    // 指定月の バナナ(5) のみ
     events = allEvents.filter(item => {
-      if (item.colorId !== '6') return false;
+      if (item.colorId !== '5') return false; // バナナ以外除外
       
       const startObj = item.start;
       if (!startObj) return false;
@@ -88,32 +86,43 @@ function createIcsFile(targetMonth, type) {
       
       const date = new Date(dateStr);
       const m = parseInt(Utilities.formatDate(date, 'Asia/Tokyo', 'M'));
-      
-      return m >= 2 && m <= 12; // 2月から12月まで
-    });
-    
-    fileName = "schedule_festival_yearly.ics"; // ファイル名も変更
-    
-  } else {
-    // 【通常モード】
-    // 1. 指定された月のみ抽出
-    // 2. バナナ(5) または ミカン(6) を許可
-    events = allEvents.filter(item => {
-      // 色チェック
-      if (item.colorId !== '5' && item.colorId !== '6') return false;
-
-      const startObj = item.start;
-      if (!startObj) return false;
-      const dateStr = startObj.dateTime || startObj.date;
-      if (!dateStr) return false;
-
-      const date = new Date(dateStr);
-      const m = parseInt(Utilities.formatDate(date, 'Asia/Tokyo', 'M'));
-      
       return m === targetMonth;
     });
+    fileName = `schedule_practice_${targetMonth}.ics`;
 
-    fileName = `schedule_month_${targetMonth}.ics`;
+  } else if (type === 'festival_yearly') {
+    // 【青：1年間の祭り登録】
+    // 2〜12月の ミカン(6) のみ
+    events = allEvents.filter(item => {
+      if (item.colorId !== '6') return false; // ミカン以外除外
+      
+      const startObj = item.start;
+      if (!startObj) return false;
+      const dateStr = startObj.dateTime || startObj.date;
+      if (!dateStr) return false;
+      
+      const date = new Date(dateStr);
+      const m = parseInt(Utilities.formatDate(date, 'Asia/Tokyo', 'M'));
+      return m >= 2 && m <= 12; 
+    });
+    fileName = "schedule_festival_yearly.ics";
+
+  } else if (type === 'festival_monthly') {
+    // 【オレンジ：月の祭り登録】
+    // 指定月の ミカン(6) のみ
+    events = allEvents.filter(item => {
+      if (item.colorId !== '6') return false; // ミカン以外除外
+      
+      const startObj = item.start;
+      if (!startObj) return false;
+      const dateStr = startObj.dateTime || startObj.date;
+      if (!dateStr) return false;
+      
+      const date = new Date(dateStr);
+      const m = parseInt(Utilities.formatDate(date, 'Asia/Tokyo', 'M'));
+      return m === targetMonth;
+    });
+    fileName = `schedule_festival_${targetMonth}.ics`;
   }
 
   let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//MyScheduleBot//JP\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n";

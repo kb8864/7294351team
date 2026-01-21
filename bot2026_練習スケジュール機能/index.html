@@ -4,23 +4,39 @@
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: "Helvetica Neue", Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 15px; color: #333; padding-top: 110px; }
+    body { font-family: "Helvetica Neue", Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 15px; color: #333; padding-top: 130px; } /* ヘッダー分padding増 */
     .header-bar { position: fixed; top: 0; left: 0; right: 0; background: white; padding: 10px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 1000; }
     .header-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .app-title { font-weight: bold; color: #555; font-size: 1.1em; }
     select#month-filter { padding: 6px 10px; font-size: 1.1em; font-weight: bold; color: #00B900; background: #fff; border: 2px solid #00B900; border-radius: 8px; outline: none; }
     
-    .export-btn-area { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    /* ★ボタンエリアを横並びに */
+    .export-btn-area { display: flex; flex-direction: row; gap: 5px; justify-content: space-between; width: 100%; }
     
-    /* 通常ボタン（緑） */
-    .export-btn { background-color: #00B900; color: white; border: none; padding: 8px 15px; font-size: 0.9em; font-weight: bold; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); text-decoration: none; }
-    .export-btn:active { background-color: #009000; box-shadow: none; transform: translateY(2px); }
+    /* 共通ボタン基本スタイル */
+    .base-btn { 
+      color: white; border: none; padding: 8px 5px; 
+      font-size: 0.75em; font-weight: bold; border-radius: 8px; 
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2); text-decoration: none;
+      flex: 1; /* 横幅均等割り */
+      text-align: center;
+      line-height: 1.2;
+    }
+    .base-btn:active { box-shadow: none; transform: translateY(2px); }
     
-    /* 祭りボタン（オレンジ） */
-    .festival-btn { background-color: #FF9900; color: white; border: none; padding: 8px 15px; font-size: 0.9em; font-weight: bold; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); text-decoration: none; }
-    .festival-btn:active { background-color: #E68A00; box-shadow: none; transform: translateY(2px); }
+    /* 1. 緑ボタン（練習） */
+    .btn-practice { background-color: #00B900; }
+    .btn-practice:active { background-color: #009000; }
 
-    .export-icon { margin-right: 5px; font-size: 1.2em; }
+    /* 2. 青ボタン（1年祭り） */
+    .btn-festival-yearly { background-color: #1E90FF; }
+    .btn-festival-yearly:active { background-color: #104E8B; }
+
+    /* 3. オレンジボタン（月祭り） */
+    .btn-festival-monthly { background-color: #FF9900; }
+    .btn-festival-monthly:active { background-color: #E68A00; }
+
     .calendar-container { background: white; border-radius: 8px; padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #ddd; border: 1px solid #ddd; }
     .cal-header { font-size: 0.8em; color: #555; background: #f9f9f9; padding: 5px 0; text-align: center; font-weight: bold; }
@@ -29,9 +45,8 @@
     .cal-cell.today { background-color: #eafbea; } .cal-cell.empty { background: #f8f8f8; }
     .day-num { font-size: 0.9em; font-weight: bold; text-align: center; margin-bottom: 2px; color: #333; }
     
-    /* ★予定のスタイル（基本：緑） */
+    /* 予定のスタイル */
     .cal-event-block { background: #00B900; color: white; border-radius: 3px; padding: 3px 2px; margin-top: 2px; font-size: 0.65em; line-height: 1.2; overflow: hidden; }
-    /* ★追加：ミカン色の予定用（オレンジ） */
     .cal-event-block.mikan { background: #FF9900; }
     
     .cal-time { font-weight: bold; display: block; border-bottom: 1px solid rgba(255,255,255,0.3); margin-bottom: 1px;}
@@ -57,15 +72,18 @@
   <div id="main-view">
     <div class="header-bar">
       <div class="header-top-row">
-        <div class="app-title">📅 練習日程</div>
+        <div class="app-title">📅 スケジュール</div>
         <select id="month-filter" onchange="changeMonth()"></select>
       </div>
       <div class="export-btn-area">
-        <button id="btn-festival" class="festival-btn" onclick="openConfirmModal('festival')">
-          <span class="export-icon">🕺💃</span>祭りだけ登録する
+        <button id="btn-practice" class="base-btn btn-practice" onclick="openConfirmModal('practice')">
+          💃練習日を<br>登録
         </button>
-        <button id="btn-normal" class="export-btn" onclick="openConfirmModal('normal')">
-          <span class="export-icon">📥</span>このスケジュールをカレンダーに登録
+        <button id="btn-festival-yearly" class="base-btn btn-festival-yearly" onclick="openConfirmModal('festival_yearly')">
+          📥1年間の祭りを<br>全て登録
+        </button>
+        <button id="btn-festival-monthly" class="base-btn btn-festival-monthly" onclick="openConfirmModal('festival_monthly')">
+          🕺月の祭りを<br>登録
         </button>
       </div>
     </div>
@@ -104,7 +122,7 @@
   <script>
     let allEventsData = [];
     let currentSelectedMonth = 1;
-    let currentDownloadType = 'normal'; // 'normal' or 'festival'
+    let currentDownloadType = ''; 
     const DEPLOY_URL = "<?= deployUrl ?>";
     let isProcessing = false;
 
@@ -165,58 +183,70 @@
       const realMonth = today.getMonth() + 1; 
       const nextMonth = realMonth + 1;
 
-      const btnNormal = document.getElementById('btn-normal');
-      const btnFestival = document.getElementById('btn-festival');
+      const btnPractice = document.getElementById('btn-practice');
+      const btnFestYear = document.getElementById('btn-festival-yearly');
+      const btnFestMonth = document.getElementById('btn-festival-monthly');
 
-      btnFestival.style.display = 'inline-flex';
+      // 1. 青（1年祭り）は常に表示
+      btnFestYear.style.visibility = 'visible';
 
-      let showNormal = false;
-      if (currentSelectedMonth === realMonth) showNormal = true;
-      if (currentSelectedMonth === nextMonth) showNormal = true;
-      if (currentSelectedMonth === 12) showNormal = true;
+      // 2. 緑（練習）とオレンジ（月祭り）は「当月」「翌月」「12月」のみ表示
+      let showMonthlyButtons = false;
+      if (currentSelectedMonth === realMonth) showMonthlyButtons = true;
+      if (currentSelectedMonth === nextMonth) showMonthlyButtons = true;
+      if (currentSelectedMonth === 12) showMonthlyButtons = true;
       
-      if (showNormal) {
-        btnNormal.style.display = 'inline-flex';
+      if (showMonthlyButtons) {
+        btnPractice.style.visibility = 'visible';
+        btnFestMonth.style.visibility = 'visible';
       } else {
-        btnNormal.style.display = 'none';
+        btnPractice.style.visibility = 'hidden';
+        btnFestMonth.style.visibility = 'hidden';
       }
     }
 
     function openConfirmModal(type) {
       currentDownloadType = type;
       let targetCount = 0;
+      let msg = "";
 
-      if (type === 'festival') {
+      if (type === 'practice') {
+        // 【緑：練習日登録】バナナ(5) かつ 指定月
+        const practiceEvents = allEventsData.filter(e => {
+          return e.colorId === '5' && e.month == currentSelectedMonth;
+        });
+        targetCount = practiceEvents.length;
+        if (targetCount === 0) {
+           alert(currentSelectedMonth + "月には「練習日(バナナ)」の予定がありません。");
+           return;
+        }
+        msg = currentSelectedMonth + "月の練習日(" + targetCount + "件)を<br>カレンダーに登録しますか？";
+
+      } else if (type === 'festival_yearly') {
+        // 【青：1年祭り】ミカン(6) かつ 2-12月
         const festivalEvents = allEventsData.filter(e => {
           return e.colorId === '6' && e.month >= 2 && e.month <= 12;
         });
         targetCount = festivalEvents.length;
-        
         if (targetCount === 0) {
-           alert("2月から12月までの期間に、登録する「祭り」の予定がありません。");
+           alert("2月から12月の間に「祭り(ミカン)」の予定がありません。");
            return;
         }
-      } else {
-        const filteredEvents = allEventsData.filter(e => e.month == currentSelectedMonth);
-        targetCount = filteredEvents.length;
+        msg = "2月〜12月の祭り(" + targetCount + "件)を<br>全てカレンダーに登録しますか？";
 
+      } else if (type === 'festival_monthly') {
+        // 【オレンジ：月祭り】ミカン(6) かつ 指定月
+        const festivalMonthEvents = allEventsData.filter(e => {
+          return e.colorId === '6' && e.month == currentSelectedMonth;
+        });
+        targetCount = festivalMonthEvents.length;
         if (targetCount === 0) {
-          alert(currentSelectedMonth + "月には登録する予定がありません。");
-          return;
+           alert(currentSelectedMonth + "月には「祭り(ミカン)」の予定がありません。");
+           return;
         }
+        msg = currentSelectedMonth + "月の祭り(" + targetCount + "件)を<br>カレンダーに登録しますか？";
       }
       
-      document.getElementById('modal-step-confirm').style.display = 'block';
-      document.getElementById('modal-step-status').style.display = 'none';
-      isProcessing = false;
-      
-      let msg = "";
-      if (type === 'festival') {
-        msg = "2月から12月の祭りの予定(" + targetCount + "件)を<br>カレンダーに登録しますか？";
-      } else {
-        msg = currentSelectedMonth + "月の予定(" + targetCount + "件)を<br>カレンダーに登録しますか？";
-      }
-
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
       if (isIOS) msg += "<br><br><small>【重要】<br>Googleアカウント選択する画面が表示されたら<br>ご自身のGoogleアカウントを選んでください。</small>";
       
@@ -276,7 +306,6 @@
             let simpleTime = e.time.replace(':00','').replace(':00','');
             if(simpleTime === "終日") simpleTime = "◆";
             
-            // ミカン色(6)ならクラスを追加
             let extraClass = "";
             if (e.colorId === '6') {
               extraClass = " mikan";
