@@ -4,36 +4,29 @@
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: "Helvetica Neue", Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 15px; color: #333; padding-top: 130px; } /* ヘッダー分padding増 */
+    body { font-family: "Helvetica Neue", Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 15px; color: #333; padding-top: 130px; } 
     .header-bar { position: fixed; top: 0; left: 0; right: 0; background: white; padding: 10px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 1000; }
     .header-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .app-title { font-weight: bold; color: #555; font-size: 1.1em; }
     select#month-filter { padding: 6px 10px; font-size: 1.1em; font-weight: bold; color: #00B900; background: #fff; border: 2px solid #00B900; border-radius: 8px; outline: none; }
     
-    /* ★ボタンエリアを横並びに */
     .export-btn-area { display: flex; flex-direction: row; gap: 5px; justify-content: space-between; width: 100%; }
     
-    /* 共通ボタン基本スタイル */
     .base-btn { 
       color: white; border: none; padding: 8px 5px; 
       font-size: 0.75em; font-weight: bold; border-radius: 8px; 
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2); text-decoration: none;
-      flex: 1; /* 横幅均等割り */
-      text-align: center;
-      line-height: 1.2;
+      flex: 1; text-align: center; line-height: 1.2;
     }
     .base-btn:active { box-shadow: none; transform: translateY(2px); }
     
-    /* 1. 緑ボタン（練習） */
     .btn-practice { background-color: #00B900; }
     .btn-practice:active { background-color: #009000; }
 
-    /* 2. 青ボタン（1年祭り） */
     .btn-festival-yearly { background-color: #1E90FF; }
     .btn-festival-yearly:active { background-color: #104E8B; }
 
-    /* 3. オレンジボタン（月祭り） */
     .btn-festival-monthly { background-color: #FF9900; }
     .btn-festival-monthly:active { background-color: #E68A00; }
 
@@ -45,7 +38,6 @@
     .cal-cell.today { background-color: #eafbea; } .cal-cell.empty { background: #f8f8f8; }
     .day-num { font-size: 0.9em; font-weight: bold; text-align: center; margin-bottom: 2px; color: #333; }
     
-    /* 予定のスタイル */
     .cal-event-block { background: #00B900; color: white; border-radius: 3px; padding: 3px 2px; margin-top: 2px; font-size: 0.65em; line-height: 1.2; overflow: hidden; }
     .cal-event-block.mikan { background: #FF9900; }
     
@@ -53,7 +45,6 @@
     .loading { text-align: center; padding: 40px; color: #888; }
     .error { color: red; background: #ffe; padding: 10px; text-align: center; }
 
-    /* モーダル */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2000; justify-content: center; align-items: center; }
     .modal-box { background: white; width: 85%; max-width: 320px; border-radius: 12px; padding: 25px 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .modal-title { font-weight: bold; font-size: 1.2em; margin-bottom: 15px; color: #333; }
@@ -72,7 +63,7 @@
   <div id="main-view">
     <div class="header-bar">
       <div class="header-top-row">
-        <div class="app-title">📅 スケジュール</div>
+        <div class="app-title">📅 練習日程</div>
         <select id="month-filter" onchange="changeMonth()"></select>
       </div>
       <div class="export-btn-area">
@@ -178,30 +169,23 @@
       window.scrollTo(0, 0);
     }
 
+    // ★緑ボタンは「2月」と「12月」のみ表示（テスト用）
     function updateButtonVisibility() {
-      const today = new Date();
-      const realMonth = today.getMonth() + 1; 
-      const nextMonth = realMonth + 1;
-
       const btnPractice = document.getElementById('btn-practice');
       const btnFestYear = document.getElementById('btn-festival-yearly');
       const btnFestMonth = document.getElementById('btn-festival-monthly');
 
-      // 1. 青（1年祭り）は常に表示
-      btnFestYear.style.visibility = 'visible';
+      btnFestYear.style.display = 'flex';
+      btnFestMonth.style.display = 'flex';
 
-      // 2. 緑（練習）とオレンジ（月祭り）は「当月」「翌月」「12月」のみ表示
-      let showMonthlyButtons = false;
-      if (currentSelectedMonth === realMonth) showMonthlyButtons = true;
-      if (currentSelectedMonth === nextMonth) showMonthlyButtons = true;
-      if (currentSelectedMonth === 12) showMonthlyButtons = true;
+      let showPractice = false;
+      if (currentSelectedMonth === 2) showPractice = true;
+      if (currentSelectedMonth === 12) showPractice = true;
       
-      if (showMonthlyButtons) {
-        btnPractice.style.visibility = 'visible';
-        btnFestMonth.style.visibility = 'visible';
+      if (showPractice) {
+        btnPractice.style.display = 'flex';
       } else {
-        btnPractice.style.visibility = 'hidden';
-        btnFestMonth.style.visibility = 'hidden';
+        btnPractice.style.display = 'none'; 
       }
     }
 
@@ -211,7 +195,6 @@
       let msg = "";
 
       if (type === 'practice') {
-        // 【緑：練習日登録】バナナ(5) かつ 指定月
         const practiceEvents = allEventsData.filter(e => {
           return e.colorId === '5' && e.month == currentSelectedMonth;
         });
@@ -223,7 +206,6 @@
         msg = currentSelectedMonth + "月の練習日(" + targetCount + "件)を<br>カレンダーに登録しますか？";
 
       } else if (type === 'festival_yearly') {
-        // 【青：1年祭り】ミカン(6) かつ 2-12月
         const festivalEvents = allEventsData.filter(e => {
           return e.colorId === '6' && e.month >= 2 && e.month <= 12;
         });
@@ -235,7 +217,6 @@
         msg = "2月〜12月の祭り(" + targetCount + "件)を<br>全てカレンダーに登録しますか？";
 
       } else if (type === 'festival_monthly') {
-        // 【オレンジ：月祭り】ミカン(6) かつ 指定月
         const festivalMonthEvents = allEventsData.filter(e => {
           return e.colorId === '6' && e.month == currentSelectedMonth;
         });
@@ -258,6 +239,7 @@
       document.getElementById('custom-modal').style.display = 'none';
     }
 
+    // ★重要：ダウンロード処理を元の方式（window.open）に戻しました
     function executeDownload() {
       isProcessing = true;
       document.getElementById('modal-step-confirm').style.display = 'none';

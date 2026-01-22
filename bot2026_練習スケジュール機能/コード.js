@@ -36,19 +36,8 @@ function getCalendarEvents() {
     
     let timeStr = isAllDay ? '終日' : `${startFmt}-${endFmt}`; 
     
+    // 更新ロジック削除済み（タイトルそのまま）
     let title = event.summary || "予定";
-    if (event.updated && event.created) {
-      const updatedDate = new Date(event.updated);
-      const createdDate = new Date(event.created);
-      const diffHours = (new Date() - updatedDate) / (1000 * 60 * 60);
-      const timeSinceCreation = (updatedDate - createdDate) / (1000 * 60);
-
-      if (diffHours < 170 && timeSinceCreation > 5) {
-        if (!title.startsWith("【更新済み】")) {
-          title = "【更新済み】" + title;
-        }
-      }
-    }
 
     return {
       id: event.id,
@@ -67,6 +56,7 @@ function getCalendarEvents() {
 }
 
 // ■ICSファイル作成用（API版）
+// ★元の「ファイルを生成してダウンロードさせる」方式に戻しました
 function createIcsFile(targetMonth, type) {
   const allEvents = fetchEventsFromApi();
   let events = [];
@@ -74,16 +64,13 @@ function createIcsFile(targetMonth, type) {
 
   // ★3つのパターンで分岐
   if (type === 'practice') {
-    // 【緑：練習日登録】
-    // 指定月の バナナ(5) のみ
+    // 【緑：練習日登録】バナナ(5) のみ
     events = allEvents.filter(item => {
-      if (item.colorId !== '5') return false; // バナナ以外除外
-      
+      if (item.colorId !== '5') return false; 
       const startObj = item.start;
       if (!startObj) return false;
       const dateStr = startObj.dateTime || startObj.date;
       if (!dateStr) return false;
-      
       const date = new Date(dateStr);
       const m = parseInt(Utilities.formatDate(date, 'Asia/Tokyo', 'M'));
       return m === targetMonth;
@@ -91,16 +78,13 @@ function createIcsFile(targetMonth, type) {
     fileName = `schedule_practice_${targetMonth}.ics`;
 
   } else if (type === 'festival_yearly') {
-    // 【青：1年間の祭り登録】
-    // 2〜12月の ミカン(6) のみ
+    // 【青：1年間の祭り登録】2〜12月の ミカン(6) のみ
     events = allEvents.filter(item => {
-      if (item.colorId !== '6') return false; // ミカン以外除外
-      
+      if (item.colorId !== '6') return false; 
       const startObj = item.start;
       if (!startObj) return false;
       const dateStr = startObj.dateTime || startObj.date;
       if (!dateStr) return false;
-      
       const date = new Date(dateStr);
       const m = parseInt(Utilities.formatDate(date, 'Asia/Tokyo', 'M'));
       return m >= 2 && m <= 12; 
@@ -108,16 +92,13 @@ function createIcsFile(targetMonth, type) {
     fileName = "schedule_festival_yearly.ics";
 
   } else if (type === 'festival_monthly') {
-    // 【オレンジ：月の祭り登録】
-    // 指定月の ミカン(6) のみ
+    // 【オレンジ：月の祭り登録】指定月の ミカン(6) のみ
     events = allEvents.filter(item => {
-      if (item.colorId !== '6') return false; // ミカン以外除外
-      
+      if (item.colorId !== '6') return false; 
       const startObj = item.start;
       if (!startObj) return false;
       const dateStr = startObj.dateTime || startObj.date;
       if (!dateStr) return false;
-      
       const date = new Date(dateStr);
       const m = parseInt(Utilities.formatDate(date, 'Asia/Tokyo', 'M'));
       return m === targetMonth;
@@ -154,19 +135,6 @@ function createIcsFile(targetMonth, type) {
 
     let summary = e.summary || "予定";
     
-    if (e.updated && e.created) {
-      const updatedDate = new Date(e.updated);
-      const createdDate = new Date(e.created);
-      const diffHours = (new Date() - updatedDate) / (1000 * 60 * 60);
-      const timeSinceCreation = (updatedDate - createdDate) / (1000 * 60);
-
-      if (diffHours < 170 && timeSinceCreation > 5) {
-        if (!summary.startsWith("【更新済み】")) {
-          summary = "【更新済み】" + summary;
-        }
-      }
-    }
-
     icsContent += "BEGIN:VEVENT\n";
     icsContent += "UID:" + e.id + "@rensyu-bot\n"; 
     icsContent += "DTSTAMP:" + nowStamp + "\n";
@@ -193,6 +161,7 @@ function createIcsFile(targetMonth, type) {
 
   icsContent += "END:VCALENDAR";
 
+  // ：ファイルとしてダウンロードさせる
   return ContentService.createTextOutput(icsContent)
     .setMimeType(ContentService.MimeType.ICAL)
     .downloadAsFile(fileName);
@@ -222,8 +191,6 @@ function fetchEventsFromApi() {
     if (!item || !item.start) return false;
     if (item.status !== 'confirmed' && item.status !== 'tentative') return false;
     if (item.visibility === 'private') return false;
-
-    // バナナ(5) か ミカン(6) のみを許可
     if (item.colorId !== '5' && item.colorId !== '6') return false;
     
     return true;
