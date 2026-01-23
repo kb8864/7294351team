@@ -47,7 +47,7 @@
   <div id="main-view">
     <div class="header-bar">
       <div class="header-top-row">
-        <div class="app-title">📅 練習日程 (Android)</div>
+        <div class="app-title">📅 スケジュール (Android)</div>
         <select id="month-filter" onchange="changeMonth()"></select>
       </div>
       <div class="export-btn-area">
@@ -58,7 +58,7 @@
           📥1年間の祭りを<br>全て登録
         </button>
         <button id="btn-festival-monthly" class="base-btn btn-festival-monthly" onclick="openConfirmModal('festival_monthly')">
-          🕺月の祭りを<br>登録
+          🕺この月の祭りを<br>登録
         </button>
       </div>
     </div>
@@ -169,17 +169,17 @@
       if (type === 'practice') {
         const practiceEvents = allEventsData.filter(e => e.colorId === '5' && e.month == currentSelectedMonth);
         targetCount = practiceEvents.length;
-        if (targetCount === 0) { alert(currentSelectedMonth + "月には「練習日(バナナ)」の予定がありません。"); return; }
+        if (targetCount === 0) { alert(currentSelectedMonth + "月には「練習日」の予定がありません。"); return; }
         msg = currentSelectedMonth + "月の練習日(" + targetCount + "件)を<br>カレンダーに登録しますか？";
       } else if (type === 'festival_yearly') {
         const festivalEvents = allEventsData.filter(e => e.colorId === '6' && e.month >= 2 && e.month <= 12);
         targetCount = festivalEvents.length;
-        if (targetCount === 0) { alert("2月から12月の間に「祭り(ミカン)」の予定がありません。"); return; }
+        if (targetCount === 0) { alert("2月から12月の間に「祭り」の予定がありません。"); return; }
         msg = "2月〜12月の祭り(" + targetCount + "件)を<br>全てカレンダーに登録しますか？";
       } else if (type === 'festival_monthly') {
         const festivalMonthEvents = allEventsData.filter(e => e.colorId === '6' && e.month == currentSelectedMonth);
         targetCount = festivalMonthEvents.length;
-        if (targetCount === 0) { alert(currentSelectedMonth + "月には「祭り(ミカン)」の予定がありません。"); return; }
+        if (targetCount === 0) { alert(currentSelectedMonth + "月には「祭り」の予定がありません。"); return; }
         msg = currentSelectedMonth + "月の祭り(" + targetCount + "件)を<br>カレンダーに登録しますか？";
       }
       
@@ -189,7 +189,7 @@
 
     function closeModal() { document.getElementById('custom-modal').style.display = 'none'; }
 
-    // ★Android専用処理：サーバーからテキストをもらって、その場でファイル化してダウンロード
+    // Android専用処理：サーバーからテキストをもらって、その場でファイル化してダウンロード
     function executeDownload() {
       isProcessing = true;
       document.getElementById('modal-step-confirm').style.display = 'none';
@@ -212,7 +212,7 @@
       else if (currentDownloadType === 'festival_yearly') fileName = "festival_yearly.ics";
       else if (currentDownloadType === 'festival_monthly') fileName = "festival_monthly.ics";
 
-      // Blobでファイル生成（現地生産）
+      // Blobでファイル生成
       const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');

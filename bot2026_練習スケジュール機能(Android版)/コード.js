@@ -2,7 +2,7 @@
 const CALENDAR_ID = 'rensyubu7294351@gmail.com';
 
 function doGet(e) {
-  // Android版はHTMLを返すだけでOK（ファイルダウンロード機能は不要）
+  // Android版はHTMLを返すだけ
   const template = HtmlService.createTemplateFromFile('index');
   template.deployUrl = ScriptApp.getService().getUrl(); 
   
@@ -44,7 +44,7 @@ function getCalendarEvents() {
   return { events: eventList };
 }
 
-// ■Android用：ICSの「中身（テキストデータ）」を生成して返す関数
+// ■Android用：ICSのテキストデータを生成して返す関数
 // ※ファイルそのものは渡さず、文字だけ渡す
 function getIcsContent(targetMonth, type) {
   return generateIcsString(targetMonth, type);

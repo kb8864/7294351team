@@ -63,7 +63,7 @@
   <div id="main-view">
     <div class="header-bar">
       <div class="header-top-row">
-        <div class="app-title">📅 練習日程</div>
+        <div class="app-title">📅 スケジュール</div>
         <select id="month-filter" onchange="changeMonth()"></select>
       </div>
       <div class="export-btn-area">
@@ -74,7 +74,7 @@
           📥1年間の祭りを<br>全て登録
         </button>
         <button id="btn-festival-monthly" class="base-btn btn-festival-monthly" onclick="openConfirmModal('festival_monthly')">
-          🕺月の祭りを<br>登録
+          🕺この月の祭りを<br>登録
         </button>
       </div>
     </div>
@@ -169,7 +169,7 @@
       window.scrollTo(0, 0);
     }
 
-    // ★緑ボタンは「2月」と「12月」のみ表示（テスト用）
+    // 緑ボタンは「2月」と「12月」のみ表示（テスト用）
     function updateButtonVisibility() {
       const btnPractice = document.getElementById('btn-practice');
       const btnFestYear = document.getElementById('btn-festival-yearly');
@@ -200,7 +200,7 @@
         });
         targetCount = practiceEvents.length;
         if (targetCount === 0) {
-           alert(currentSelectedMonth + "月には「練習日(バナナ)」の予定がありません。");
+           alert(currentSelectedMonth + "月には「練習日」の予定がありません。");
            return;
         }
         msg = currentSelectedMonth + "月の練習日(" + targetCount + "件)を<br>カレンダーに登録しますか？";
@@ -211,7 +211,7 @@
         });
         targetCount = festivalEvents.length;
         if (targetCount === 0) {
-           alert("2月から12月の間に「祭り(ミカン)」の予定がありません。");
+           alert("2月から12月の間に「祭り」の予定がありません。");
            return;
         }
         msg = "2月〜12月の祭り(" + targetCount + "件)を<br>全てカレンダーに登録しますか？";
@@ -222,14 +222,14 @@
         });
         targetCount = festivalMonthEvents.length;
         if (targetCount === 0) {
-           alert(currentSelectedMonth + "月には「祭り(ミカン)」の予定がありません。");
+           alert(currentSelectedMonth + "月には「祭り」の予定がありません。");
            return;
         }
         msg = currentSelectedMonth + "月の祭り(" + targetCount + "件)を<br>カレンダーに登録しますか？";
       }
       
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      if (isIOS) msg += "<br><br><small>【重要】<br>Googleアカウント選択する画面が表示されたら<br>ご自身のGoogleアカウントを選んでください。</small>";
+      if (isIOS) msg += "<br><br><small>【重要】<br>Googleアカウント選択する画面が表示されたら<br>あなたのGoogleアカウントを選んでください。</small>";
       
       document.getElementById('confirm-msg').innerHTML = msg;
       document.getElementById('custom-modal').style.display = 'flex';
@@ -239,7 +239,6 @@
       document.getElementById('custom-modal').style.display = 'none';
     }
 
-    // ★重要：ダウンロード処理を元の方式（window.open）に戻しました
     function executeDownload() {
       isProcessing = true;
       document.getElementById('modal-step-confirm').style.display = 'none';

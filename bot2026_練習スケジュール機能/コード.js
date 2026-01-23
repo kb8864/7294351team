@@ -56,7 +56,6 @@ function getCalendarEvents() {
 }
 
 // ■ICSファイル作成用（API版）
-// ★元の「ファイルを生成してダウンロードさせる」方式に戻しました
 function createIcsFile(targetMonth, type) {
   const allEvents = fetchEventsFromApi();
   let events = [];
@@ -161,7 +160,7 @@ function createIcsFile(targetMonth, type) {
 
   icsContent += "END:VCALENDAR";
 
-  // ：ファイルとしてダウンロードさせる
+  // ファイルとしてダウンロードさせる
   return ContentService.createTextOutput(icsContent)
     .setMimeType(ContentService.MimeType.ICAL)
     .downloadAsFile(fileName);
