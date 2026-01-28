@@ -59,7 +59,7 @@ function getCalendarEvents() {
 function createIcsFile(targetMonth, type) {
   const allEvents = fetchEventsFromApi();
   let events = [];
-  let fileName = "";
+  let fileName = "schedule.ics"; // デフォルト
 
   // ★3つのパターンで分岐
   if (type === 'practice') {
@@ -74,6 +74,7 @@ function createIcsFile(targetMonth, type) {
       const m = parseInt(Utilities.formatDate(date, 'Asia/Tokyo', 'M'));
       return m === targetMonth;
     });
+    // fix：schedule_practice_11.icsなどから「月」を削除してエラー回避
     fileName = `schedule_practice_${targetMonth}.ics`;
 
   } else if (type === 'festival_yearly') {
@@ -102,6 +103,7 @@ function createIcsFile(targetMonth, type) {
       const m = parseInt(Utilities.formatDate(date, 'Asia/Tokyo', 'M'));
       return m === targetMonth;
     });
+    // ★fix：schedule_practice_11.icsなどから「月」を削除してエラー回避
     fileName = `schedule_festival_${targetMonth}.ics`;
   }
 
@@ -129,8 +131,11 @@ function createIcsFile(targetMonth, type) {
     const startVal = e.start.dateTime || e.start.date;
     const endVal = e.end.dateTime || e.end.date;
     const nowStamp = Utilities.formatDate(new Date(), 'GMT', "yyyyMMdd'T'HHmmss'Z'");
-    const lastModDate = new Date(e.updated);
-    const lastModStr = Utilities.formatDate(lastModDate, 'GMT', "yyyyMMdd'T'HHmmss'Z'");
+    
+    let lastModStr = nowStamp;
+    if (e.updated) {
+        lastModStr = Utilities.formatDate(new Date(e.updated), 'GMT', "yyyyMMdd'T'HHmmss'Z'");
+    }
 
     let summary = e.summary || "予定";
     
@@ -166,26 +171,49 @@ function createIcsFile(targetMonth, type) {
     .downloadAsFile(fileName);
 }
 
-// ■共通データ取得関数
+// ■共通データ取得関数（全件取得対応）
+// ※確実に全ての予定を取得するためのループ処理を復活
 function fetchEventsFromApi() {
   const now = new Date();
   const timeMin = new Date(now.getFullYear(), 0, 1).toISOString();
   const timeMax = new Date(now.getFullYear() + 1, 11, 31).toISOString();
 
   let items = [];
-  try {
-    const response = Calendar.Events.list(CALENDAR_ID, {
-      timeMin: timeMin,
-      timeMax: timeMax,
-      singleEvents: true, 
-      orderBy: 'startTime',
-      showDeleted: false 
-    });
-    items = response.items;
-  } catch (e) {
-    throw new Error("左側の「サービス」から「Google Calendar API」を追加してください。");
-  }
+  let pageToken = null; // ページ送りのためのトークン
 
+  // データが残っている限り、何度でも取りに行くループ処理
+  do {
+    try {
+      const options = {
+        timeMin: timeMin,
+        timeMax: timeMax,
+        singleEvents: true, 
+        orderBy: 'startTime',
+        showDeleted: false,
+        maxResults: 2500 // 一度に取る件数を最大化
+      };
+      
+      // 2回目以降のアクセスなら「続きから」の合図を入れる
+      if (pageToken) {
+        options.pageToken = pageToken;
+      }
+
+      const response = Calendar.Events.list(CALENDAR_ID, options);
+      
+      // 取得したデータをリストに追加
+      if (response.items && response.items.length > 0) {
+        items = items.concat(response.items);
+      }
+      
+      // 「まだ次ページがあるか？」を確認
+      pageToken = response.nextPageToken;
+      
+    } catch (e) {
+      throw new Error("左側の「サービス」から「Google Calendar API」を追加してください。");
+    }
+  } while (pageToken); // 次ページがある限り繰り返す
+
+  // フィルタリングして返す
   return items.filter(item => {
     if (!item || !item.start) return false;
     if (item.status !== 'confirmed' && item.status !== 'tentative') return false;
